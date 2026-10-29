@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 3 - Quản lý công việc cá nhân</title>
+    <link rel="stylesheet" href="Bai3.css">
+</head>
+<body>
+    <main id="app" v-cloak>
+        <nav aria-label="Các bài tập buổi 6">
+            <a href="Bai1.html">Bài 1 · Sinh viên</a>
+            <a href="Bai2.html">Bài 2 · Đặt vé</a>
+            <a href="Bai3.html" aria-current="page">Bài 3 · Công việc</a>
+        </nav>
+        <h1>Quản lý công việc cá nhân</h1>
+        <p class="subtitle">Bài tập 3 · Buổi 6 · VueJS</p>
+
+        <div class="stats" aria-live="polite">
+            <div class="stat"><strong id="tong-so">{{ tongSoCongViec }}</strong><span>Tổng công việc</span></div>
+            <div class="stat"><strong id="chua-hoan-thanh">{{ soViecChuaHoanThanh }}</strong><span>Chưa hoàn thành</span></div>
+            <div class="stat"><strong id="da-hoan-thanh">{{ soViecDaHoanThanh }}</strong><span>Đã hoàn thành</span></div>
+        </div>
+
+        <section class="card" aria-labelledby="danh-sach">
+            <h2 id="danh-sach">Công việc trong ngày</h2>
+            <!-- Submit form hoạt động khi nhấn nút Thêm hoặc phím Enter. -->
+            <form @submit.prevent="themCongViec">
+                <label for="cong-viec-moi">Tên công việc mới</label>
+                <div class="add-form">
+                    <input id="cong-viec-moi" ref="oNhapCongViec" type="text" v-model.trim="tenCongViecMoi" @input="loiNhap = ''" placeholder="Bạn cần làm gì hôm nay?" :aria-invalid="Boolean(loiNhap)" aria-describedby="huong-dan-them">
+                    <button type="submit">Thêm</button>
+                </div>
+                <p id="huong-dan-them" v-if="!loiNhap" class="hint">Nhấn Enter hoặc nút Thêm để tạo công việc.</p>
+                <p id="huong-dan-them" v-else class="error" role="alert">{{ loiNhap }}</p>
+            </form>
+
+            <div class="filters" role="group" aria-label="Lọc trạng thái công việc">
+                <button v-for="luaChon in cacBoLoc" :key="luaChon.giaTri" type="button" :class="{ active: boLoc === luaChon.giaTri }" :aria-pressed="boLoc === luaChon.giaTri" @click="boLoc = luaChon.giaTri">{{ luaChon.nhan }}</button>
+            </div>
+
+            <ul v-if="congViecDaLoc.length" class="task-list">
+                <li v-for="congViec in congViecDaLoc" :key="congViec.id" class="task" :class="{ completed: congViec.hoanThanh }">
+                    <label :for="'cong-viec-' + congViec.id">
+                        <input :id="'cong-viec-' + congViec.id" type="checkbox" v-model="congViec.hoanThanh">
+                        <span class="task-name">{{ congViec.ten }}</span>
+                    </label>
+                    <button type="button" class="delete" @click="xoaCongViec(congViec.id)" :aria-label="'Xóa công việc: ' + congViec.ten">Xóa</button>
+                </li>
+            </ul>
+            <p v-else class="empty" role="status">{{ thongBaoRong }}</p>
+
+            <div class="footer">
+                <p>Hiển thị {{ congViecDaLoc.length }} / {{ tongSoCongViec }} công việc</p>
+                <button type="button" class="delete" @click="xoaViecDaHoanThanh" :disabled="soViecDaHoanThanh === 0">Xóa các việc đã hoàn thành</button>
+            </div>
+            <p class="hint">Dữ liệu được lưu trong phiên hiện tại; tải lại trang sẽ trở về danh sách mẫu.</p>
+        </section>
+    </main>
+
+    <!-- Dùng Vue qua CDN; cần kết nối Internet khi mở file. -->
+    <script src="https://unpkg.com/vue@3.5.44/dist/vue.global.js"></script>
+    <script src="Bai3.js"></script>
+</body>
+</html>

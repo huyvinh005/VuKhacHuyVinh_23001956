@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 1 - Thẻ thông tin sinh viên</title>
+    <link rel="stylesheet" href="Bai1.css">
+</head>
+<body>
+    <main id="app" v-cloak>
+        <nav aria-label="Các bài tập buổi 6">
+            <a href="Bai1.html" aria-current="page">Bài 1 · Sinh viên</a>
+            <a href="Bai2.html">Bài 2 · Đặt vé</a>
+            <a href="Bai3.html">Bài 3 · Công việc</a>
+        </nav>
+        <h1>Thẻ thông tin sinh viên</h1>
+        <p class="subtitle">Bài tập 1 · Buổi 6 · VueJS</p>
+
+        <div class="layout">
+            <section class="card profile" aria-label="Thông tin sinh viên">
+                <!-- v-bind gắn đường dẫn ảnh và nội dung thay thế. -->
+                <img class="avatar" v-bind:src="sinhVien.anhDaiDien" v-bind:alt="'Ảnh đại diện của ' + sinhVien.hoTen" width="112" height="112">
+                <h2>{{ sinhVien.hoTen }}</h2>
+                <p class="student-id">Mã sinh viên: {{ sinhVien.maSinhVien }}</p>
+                <dl>
+                    <div>
+                        <dt>Lớp</dt>
+                        <dd v-text="sinhVien.lop"></dd>
+                    </div>
+                    <div>
+                        <dt>Điểm trung bình</dt>
+                        <dd>{{ diemHopLe ? sinhVien.diemTrungBinh : 'Chưa hợp lệ' }}</dd>
+                    </div>
+                    <div>
+                        <dt>Xếp loại</dt>
+                        <dd>
+                            <!-- v-if / v-else-if xét các khoảng điểm từ cao xuống thấp. -->
+                            <span class="badge" :class="mauXepLoai">
+                                <template v-if="!diemHopLe">Điểm không hợp lệ</template>
+                                <template v-else-if="sinhVien.diemTrungBinh >= 8">Giỏi</template>
+                                <template v-else-if="sinhVien.diemTrungBinh >= 6.5">Khá</template>
+                                <template v-else-if="sinhVien.diemTrungBinh >= 5">Trung bình</template>
+                                <template v-else>Chưa đạt</template>
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Trạng thái</dt>
+                        <dd>
+                            <span v-if="sinhVien.dangHoc" class="badge dang-hoc">Đang học</span>
+                            <span v-else class="badge da-nghi">Đã nghỉ</span>
+                        </dd>
+                    </div>
+                </dl>
+                <button type="button" @click="hienGioiThieu = !hienGioiThieu" :aria-expanded="hienGioiThieu" aria-controls="gioi-thieu">
+                    {{ hienGioiThieu ? 'Ẩn giới thiệu' : 'Hiện giới thiệu' }}
+                </button>
+                <!-- v-show giữ phần giới thiệu trong DOM khi ẩn. -->
+                <p id="gioi-thieu" class="intro" v-show="hienGioiThieu">{{ sinhVien.gioiThieu }}</p>
+            </section>
+
+            <section class="card" aria-labelledby="chinh-sua">
+                <h2 id="chinh-sua">Thay đổi thông tin</h2>
+                <p class="hint">Chỉnh dữ liệu để xem thẻ và màu xếp loại tự cập nhật. Thông tin lớp, điểm là dữ liệu mẫu.</p>
+                <label class="field" for="ho-ten">Họ tên
+                    <input id="ho-ten" type="text" v-model.trim="sinhVien.hoTen">
+                </label>
+                <label class="field" for="lop">Lớp
+                    <input id="lop" type="text" v-model.trim="sinhVien.lop">
+                </label>
+                <label class="field" for="diem">Điểm trung bình
+                    <input id="diem" type="number" min="0" max="10" step="0.1" v-model.number="sinhVien.diemTrungBinh" :aria-invalid="!diemHopLe" aria-describedby="huong-dan-diem">
+                </label>
+                <p id="huong-dan-diem" :class="diemHopLe ? 'hint' : 'error'">Nhập điểm từ 0 đến 10.</p>
+                <label class="check" for="dang-hoc">
+                    <input id="dang-hoc" type="checkbox" v-model="sinhVien.dangHoc">
+                    Sinh viên đang học
+                </label>
+            </section>
+        </div>
+    </main>
+
+    <!-- Dùng Vue qua CDN; cần kết nối Internet khi mở file. -->
+    <script src="https://unpkg.com/vue@3.5.44/dist/vue.global.js"></script>
+    <script src="Bai1.js"></script>
+</body>
+</html>
