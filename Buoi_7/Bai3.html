@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 3 - Giỏ hàng với props và emit</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="Bai3.css">
+</head>
+<body>
+    <main id="app" v-cloak>
+        <nav aria-label="Các bài tập buổi 7">
+            <a href="Bai1.html">Bài 1 · Quản lý sản phẩm</a>
+            <a href="Bai2.html">Bài 2 · Thẻ sản phẩm</a>
+            <a href="Bai3.html" aria-current="page">Bài 3 · Giỏ hàng</a>
+        </nav>
+        <h1>Giỏ hàng của bạn</h1>
+        <p class="subtitle">Bài tập 3 · Props và sự kiện tùy chỉnh</p>
+
+        <div class="cart-layout">
+            <section class="card" aria-labelledby="san-pham-trong-gio">
+                <h2 id="san-pham-trong-gio">Sản phẩm trong giỏ</h2>
+                <!-- Component con chỉ phát sự kiện, cha mới cập nhật dữ liệu. -->
+                <div v-if="gioHang.length > 0" class="cart-items">
+                    <dong-gio-hang
+                        v-for="matHang in gioHang"
+                        :key="matHang.id"
+                        :id="matHang.id"
+                        :ten="matHang.ten"
+                        :don-gia="matHang.donGia"
+                        :so-luong="matHang.soLuong"
+                        @doi-so-luong="doiSoLuong"
+                        @yeu-cau-xoa="xoaSanPham"
+                    ></dong-gio-hang>
+                </div>
+                <p v-else class="empty" role="status">Giỏ hàng trống</p>
+                <p class="hint quantity-hint">Số lượng mỗi sản phẩm là số nguyên từ 1 đến 99.</p>
+            </section>
+
+            <section class="card summary" aria-labelledby="tom-tat">
+                <h2 id="tom-tat">Tóm tắt giỏ hàng</h2>
+                <dl aria-live="polite">
+                    <div><dt>Số loại sản phẩm</dt><dd id="so-loai">{{ gioHang.length }}</dd></div>
+                    <div><dt>Tổng số lượng</dt><dd id="tong-so-luong">{{ tongSoLuong }}</dd></div>
+                    <div class="grand-total"><dt>Tổng tiền</dt><dd id="tong-tien">{{ dinhDangTien(tongTien) }}</dd></div>
+                </dl>
+                <button type="button" class="secondary restore-button" @click="khoiPhucGioMau">Khôi phục giỏ mẫu</button>
+            </section>
+        </div>
+        <p v-if="loi" class="notice error" role="alert">{{ loi }}</p>
+        <p v-if="thongBao" class="notice" role="status">{{ thongBao }}</p>
+        <p class="page-note">Giỏ mẫu: 2 bút × 5.000 đồng + 3 quyển vở × 12.000 đồng = 46.000 đồng, tổng số lượng 5.</p>
+    </main>
+
+    <script src="https://unpkg.com/vue@3.5.44/dist/vue.global.js"></script>
+    <script src="components/DongGioHang.js"></script>
+    <script src="Bai3.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+.cart-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.cart-item { padding: 20px 0; border-top: 1px solid #e2e8f0; }
+.item-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.item-heading h3 { margin: 0 0 4px; font-size: 18px; overflow-wrap: anywhere; }
+.item-heading p { font-size: 14px; margin: 0; color: #64748b; }
+.item-heading .danger { padding: 6px 12px; }
+.item-controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; }
+.quantity-control { display: flex; align-items: center; gap: 8px; }
+.quantity-control button { min-width: 40px; min-height: 40px; padding: 5px 10px; font-size: 20px; }
+.quantity-value { min-width: 38px; text-align: center; font-weight: 600; }
+.line-total { color: #1d4ed8; font-weight: 700; }
+.quantity-hint { padding-top: 18px; margin: 0; border-top: 1px solid #e2e8f0; }
+.summary dl { margin: 0; }
+.summary dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 10px 0; }
+.summary dt { color: #64748b; }
+.summary dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.summary .grand-total { margin-top: 12px; padding-top: 18px; border-top: 1px solid #e2e8f0; }
+.grand-total dd { color: #1d4ed8; font-size: 25px; }
+.restore-button { width: 100%; margin-top: 20px; }
+@media (max-width: 800px) { .cart-layout { grid-template-columns: 1fr; } }
