@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 2 - Danh mục sản phẩm bằng component</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="Bai2.css">
+</head>
+<body>
+    <main id="app" v-cloak>
+        <nav aria-label="Các bài tập buổi 7">
+            <a href="Bai1.html">Bài 1 · Quản lý sản phẩm</a>
+            <a href="Bai2.html" aria-current="page">Bài 2 · Thẻ sản phẩm</a>
+            <a href="Bai3.html">Bài 3 · Giỏ hàng</a>
+        </nav>
+        <h1>Góc học tập của bạn</h1>
+        <p class="subtitle">Bài tập 2 · Danh mục sản phẩm bằng component</p>
+        <p v-if="thongBao" class="notice" role="status">{{ thongBao }}</p>
+
+        <section class="product-grid" aria-label="Danh mục sản phẩm">
+            <!-- Props được binding từ danh sách do component cha quản lý. -->
+            <the-san-pham
+                v-for="sanPham in sanPham"
+                :key="sanPham.id"
+                :ten="sanPham.ten"
+                :gia="sanPham.gia"
+                :anh="sanPham.anh"
+                :mo-ta="sanPham.moTa"
+                :so-luong-ton="sanPham.soLuongTon"
+                @mua="chonMua"
+            ></the-san-pham>
+        </section>
+        <p class="page-note">Mỗi thẻ có phần mô tả độc lập. Nút Mua ghi nhận sản phẩm bạn chọn trong bản thực hành này.</p>
+    </main>
+
+    <script src="https://unpkg.com/vue@3.5.44/dist/vue.global.js"></script>
+    <!-- Nạp component trước khi đăng ký và mount ứng dụng cha. -->
+    <script src="components/TheSanPham.js"></script>
+    <script src="Bai2.js"></script>
+</body>
+</html>
