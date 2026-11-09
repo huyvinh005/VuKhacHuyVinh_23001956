@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài 1 - Danh sách sản phẩm</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="Bai1.css">
+</head>
+<body>
+    <main id="app" v-cloak>
+        <nav aria-label="Các bài tập buổi 7">
+            <a href="Bai1.html" aria-current="page">Bài 1 · Quản lý sản phẩm</a>
+            <a href="Bai2.html">Bài 2 · Thẻ sản phẩm</a>
+            <a href="Bai3.html">Bài 3 · Giỏ hàng</a>
+        </nav>
+        <header class="page-header">
+            <div>
+                <h1>Quản lý sản phẩm</h1>
+                <p class="subtitle">Bài tập 1 · Tìm kiếm, lọc và thống kê tồn kho</p>
+            </div>
+            <span id="trang-thai" class="badge ready" role="status">{{ trangThai }}</span>
+        </header>
+
+        <section class="card" aria-labelledby="bo-loc">
+            <h2 id="bo-loc">Tìm sản phẩm</h2>
+            <div class="filters">
+                <div class="field">
+                    <label for="tu-khoa">Tên sản phẩm</label>
+                    <input id="tu-khoa" type="search" v-model.trim="tuKhoa" placeholder="Nhập tên cần tìm…" aria-describedby="canh-bao-tu-khoa">
+                </div>
+                <div class="field">
+                    <label for="danh-muc-loc">Danh mục</label>
+                    <select id="danh-muc-loc" v-model="danhMucLoc">
+                        <option value="">Tất cả danh mục</option>
+                        <option v-for="danhMuc in cacDanhMuc" :key="danhMuc" :value="danhMuc">{{ danhMuc }}</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="sap-xep">Sắp xếp theo giá</label>
+                    <select id="sap-xep" v-model="sapXep">
+                        <option value="mac-dinh">Thứ tự ban đầu</option>
+                        <option value="tang">Giá tăng dần</option>
+                        <option value="giam">Giá giảm dần</option>
+                    </select>
+                </div>
+                <button type="button" class="secondary" @click="datLaiBoLoc">Đặt lại bộ lọc</button>
+            </div>
+            <p id="canh-bao-tu-khoa" class="hint" aria-live="polite">{{ canhBaoTuKhoa }}</p>
+        </section>
+
+        <div class="stats" aria-live="polite">
+            <div class="stat">
+                <span>Sản phẩm đang hiển thị / Tổng số</span>
+                <strong id="thong-ke-so-luong">{{ soSanPhamHienThi }} / {{ tongSoSanPham }}</strong>
+            </div>
+            <div class="stat">
+                <span>Giá trị tồn kho đang hiển thị</span>
+                <strong id="gia-tri-ton-kho">{{ dinhDangTien(tongGiaTriTonKho) }}</strong>
+            </div>
+        </div>
+
+        <section class="card" aria-labelledby="danh-sach">
+            <h2 id="danh-sach">Danh sách sản phẩm</h2>
+            <div class="table-wrap" role="region" aria-label="Bảng sản phẩm, cuộn ngang trên màn hình nhỏ" tabindex="0">
+                <table>
+                    <thead>
+                        <tr><th scope="col">Sản phẩm</th><th scope="col">Danh mục</th><th scope="col">Đơn giá</th><th scope="col">Tồn kho</th><th scope="col">Trạng thái</th><th scope="col">Giá trị tồn</th><th scope="col">Thao tác</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="sanPham in sanPhamHienThi" :key="sanPham.id" :data-id="sanPham.id" class="product-row">
+                            <th scope="row">{{ sanPham.ten }}</th>
+                            <td>{{ sanPham.danhMuc }}</td>
+                            <td class="money">{{ dinhDangTien(sanPham.gia) }}</td>
+                            <td>{{ sanPham.tonKho }}</td>
+                            <td><span class="badge" :class="sanPham.tonKho > 0 ? 'in-stock' : 'out-of-stock'">{{ sanPham.tonKho > 0 ? 'Còn hàng' : 'Hết hàng' }}</span></td>
+                            <td class="money">{{ dinhDangTien(sanPham.gia * sanPham.tonKho) }}</td>
+                            <td><button type="button" class="danger" @click="xoaSanPham(sanPham.id)" :aria-label="'Xóa sản phẩm: ' + sanPham.ten">Xóa</button></td>
+                        </tr>
+                        <tr v-if="sanPhamHienThi.length === 0">
+                            <td colspan="7" class="empty" role="status">{{ tongSoSanPham === 0 ? 'Chưa có sản phẩm nào. Hãy thêm sản phẩm mới.' : 'Không có sản phẩm phù hợp với bộ lọc hiện tại.' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card section-gap" aria-labelledby="them-san-pham">
+            <h2 id="them-san-pham">Thêm sản phẩm mới</h2>
+            <form @submit.prevent="themSanPham" novalidate>
+                <div class="new-product">
+                    <div class="field">
+                        <label for="ten-moi">Tên sản phẩm</label>
+                        <input id="ten-moi" ref="tenMoi" type="text" v-model.trim="sanPhamMoi.ten" required :aria-invalid="Boolean(loiNhap.ten)" aria-describedby="loi-ten">
+                        <p id="loi-ten" class="error" v-if="loiNhap.ten">{{ loiNhap.ten }}</p>
+                    </div>
+                    <div class="field">
+                        <label for="gia-moi">Đơn giá (đồng)</label>
+                        <input id="gia-moi" type="number" min="0" step="any" v-model.number="sanPhamMoi.gia" required :aria-invalid="Boolean(loiNhap.gia)" aria-describedby="loi-gia">
+                        <p id="loi-gia" class="error" v-if="loiNhap.gia">{{ loiNhap.gia }}</p>
+                    </div>
+                    <div class="field">
+                        <label for="danh-muc-moi">Danh mục</label>
+                        <select id="danh-muc-moi" v-model="sanPhamMoi.danhMuc" :aria-invalid="Boolean(loiNhap.danhMuc)" aria-describedby="loi-danh-muc">
+                            <option v-for="danhMuc in cacDanhMuc" :key="danhMuc" :value="danhMuc">{{ danhMuc }}</option>
+                        </select>
+                        <p id="loi-danh-muc" class="error" v-if="loiNhap.danhMuc">{{ loiNhap.danhMuc }}</p>
+                    </div>
+                    <div class="field">
+                        <label for="ton-kho-moi">Số lượng tồn</label>
+                        <input id="ton-kho-moi" type="number" min="0" step="1" v-model.number="sanPhamMoi.tonKho" required :aria-invalid="Boolean(loiNhap.tonKho)" aria-describedby="loi-ton-kho">
+                        <p id="loi-ton-kho" class="error" v-if="loiNhap.tonKho">{{ loiNhap.tonKho }}</p>
+                    </div>
+                </div>
+                <button type="submit" class="add-button">Thêm sản phẩm</button>
+            </form>
+        </section>
+        <p v-if="thongBao" class="notice" role="status">{{ thongBao }}</p>
+        <p class="page-note">Dữ liệu mẫu được quản lý trong bộ nhớ. Tải lại trang để khôi phục danh sách ban đầu.</p>
+    </main>
+
+    <script src="https://unpkg.com/vue@3.5.44/dist/vue.global.js"></script>
+    <script src="Bai1.js"></script>
+</body>
+</html>

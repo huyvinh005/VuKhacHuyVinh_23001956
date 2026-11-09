@@ -1,0 +1,22 @@
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.page-header .badge { margin-top: 6px; }
+.filters { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; align-items: end; gap: 14px; }
+#canh-bao-tu-khoa { min-height: 22px; margin: 10px 0 0; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 13px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+thead th { background: #f8fafc; color: #475569; white-space: nowrap; }
+tbody th { min-width: 150px; font-weight: 600; }
+td.money { white-space: nowrap; }
+td button { padding: 6px 12px; }
+.new-product { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 16px; align-items: start; }
+.add-button { margin-top: 18px; }
+
+@media (max-width: 900px) {
+    .filters, .new-product { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+    .page-header { display: block; }
+    .page-header .badge { margin: 0 0 20px; }
+    .filters, .new-product { grid-template-columns: 1fr; }
+}
