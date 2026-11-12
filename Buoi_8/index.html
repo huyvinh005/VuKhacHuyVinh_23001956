@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buổi 8 - Quản lý sản phẩm với PHP và Vue</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <noscript>Vui lòng bật JavaScript để sử dụng trang quản lý sản phẩm.</noscript>
+    <main id="app" v-cloak>
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">BÀI TẬP THỰC HÀNH · BUỔI 8</p>
+                <h1>Quản lý sản phẩm</h1>
+                <p class="subtitle">Theo dõi tồn kho, thêm và cập nhật sản phẩm của bạn.</p>
+            </div>
+            <button type="button" class="secondary" @click="refreshProducts" :disabled="busy">{{ loading ? 'Đang tải…' : 'Tải lại danh sách' }}</button>
+        </header>
+
+        <p v-if="errorMessage" id="error-message" class="message error" role="alert">{{ errorMessage }}</p>
+        <p v-if="successMessage" id="success-message" class="message success" role="status">{{ successMessage }}</p>
+
+        <div class="layout">
+            <section class="card products" aria-labelledby="list-title" :aria-busy="loading">
+                <div class="section-header">
+                    <h2 id="list-title">Danh sách sản phẩm</h2>
+                    <span class="count" v-if="loaded">{{ products.length }} sản phẩm</span>
+                </div>
+                <p v-if="loading" class="loading" role="status">Đang tải danh sách sản phẩm…</p>
+                <div class="table-wrap" role="region" aria-label="Bảng sản phẩm, cuộn ngang trên màn hình nhỏ" tabindex="0">
+                    <table>
+                        <thead>
+                            <tr><th scope="col">Tên sản phẩm</th><th scope="col">Đơn giá</th><th scope="col">Tồn kho</th><th scope="col">Thao tác</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="product in products" :key="product.id" :data-id="product.id" class="product-row" :class="{ editing: editingId === product.id }">
+                                <th scope="row">{{ product.name }}<span v-if="editingId === product.id" class="editing-label">Đang sửa</span></th>
+                                <td class="money">{{ formatMoney(product.price) }}</td>
+                                <td><span class="stock" :class="product.stock > 0 ? 'in-stock' : 'out-of-stock'">{{ product.stock }}</span></td>
+                                <td><div class="row-actions">
+                                    <button type="button" class="edit-button secondary" :disabled="busy" @click="editProduct(product)" :aria-label="'Sửa ' + product.name">Sửa</button>
+                                    <button type="button" class="delete-button danger" :disabled="busy" @click="deleteProduct(product)" :aria-label="'Xóa ' + product.name">{{ deletingId === product.id ? 'Đang xóa…' : 'Xóa' }}</button>
+                                </div></td>
+                            </tr>
+                            <tr v-if="loaded && !loading && products.length === 0"><td colspan="4" class="empty">Chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên.</td></tr>
+                            <tr v-if="!loaded && !loading"><td colspan="4" class="empty">Chưa tải được danh sách. Kiểm tra thông báo lỗi rồi bấm Tải lại danh sách.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="hint table-note">Tồn kho bằng 0 được đánh dấu hết hàng.</p>
+            </section>
+
+            <section class="card editor" aria-labelledby="form-title">
+                <p class="eyebrow">{{ editingId === null ? 'SẢN PHẨM MỚI' : 'SẢN PHẨM #' + editingId }}</p>
+                <h2 id="form-title">{{ editingId === null ? 'Thêm sản phẩm' : 'Sửa sản phẩm' }}</h2>
+                <form @submit.prevent="saveProduct" novalidate>
+                    <fieldset :disabled="busy">
+                        <div class="field">
+                            <label for="name">Tên sản phẩm</label>
+                            <input id="name" ref="nameInput" type="text" maxlength="100" v-model.trim="form.name" required placeholder="Ví dụ: Bút bi" :aria-invalid="Boolean(fieldErrors.name)" aria-describedby="name-error">
+                            <p id="name-error" class="field-error" v-if="fieldErrors.name">{{ fieldErrors.name }}</p>
+                        </div>
+                        <div class="field">
+                            <label for="price">Đơn giá (đồng)</label>
+                            <input id="price" type="number" min="1" max="2147483647" step="1" v-model.number="form.price" required placeholder="Ví dụ: 5000" :aria-invalid="Boolean(fieldErrors.price)" aria-describedby="price-error">
+                            <p id="price-error" class="field-error" v-if="fieldErrors.price">{{ fieldErrors.price }}</p>
+                        </div>
+                        <div class="field">
+                            <label for="stock">Số lượng tồn</label>
+                            <input id="stock" type="number" min="0" max="2147483647" step="1" v-model.number="form.stock" required :aria-invalid="Boolean(fieldErrors.stock)" aria-describedby="stock-error">
+                            <p id="stock-error" class="field-error" v-if="fieldErrors.stock">{{ fieldErrors.stock }}</p>
+                        </div>
+                        <p class="hint">Đơn giá là số nguyên dương. Tồn kho là số nguyên từ 0 trở lên.</p>
+                        <div class="form-actions">
+                            <button type="submit" class="save-button">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button>
+                            <button type="button" class="secondary" @click="cancelEdit">{{ editingId === null ? 'Nhập lại' : 'Hủy sửa' }}</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </section>
+        </div>
+        <p class="page-note">Thay đổi được lưu vào cơ sở dữ liệu và vẫn còn khi tải lại trang.</p>
+    </main>
+
+    <script src="https://unpkg.com/vue@3.5.44/dist/vue.global.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
